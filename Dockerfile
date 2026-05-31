@@ -8,7 +8,7 @@
 # `16.13-pgv0.8.1`. Both the upstream postgres tag and the
 # pgvector source tag are pinned at build time; Renovate
 # tracks both.
-FROM postgres:17-alpine
+FROM postgres:18-alpine
 
 ARG PGVECTOR_VERSION=v0.8.1
 
