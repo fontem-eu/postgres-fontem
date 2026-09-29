@@ -51,6 +51,7 @@ ENV LANG=en_US.utf8
 # applied separately (see RUNBOOK.md).
 COPY init/00-extensions.sql /docker-entrypoint-initdb.d/00-extensions.sql
 # DHI's entrypoint does not run /docker-entrypoint-initdb.d; ours does, once,
-# on a fresh cluster (see the script).
-COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/postgres-fontem-entrypoint.sh
+# on a fresh cluster (see the script). Executable in git: CI builds with the
+# classic builder, which has no COPY --chmod.
+COPY docker-entrypoint.sh /usr/local/bin/postgres-fontem-entrypoint.sh
 ENTRYPOINT ["/usr/local/bin/postgres-fontem-entrypoint.sh"]
