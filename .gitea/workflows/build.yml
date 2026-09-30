@@ -35,6 +35,15 @@ jobs:
             echo "value=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
           fi
 
+      # Before anything is pushed: a fresh volume initialises, and the server
+      # starts on a data directory with the permissions a kubelet fsGroup
+      # leaves (the 2026-09-30 prod crash loop). docker-build-sign's build
+      # below reuses these layers.
+      - name: Smoke test the image
+        run: |
+          docker build --network host -t postgres-fontem-smoke:${{ github.run_id }} .
+          test/smoke.sh postgres-fontem-smoke:${{ github.run_id }}
+
       # The build path every image takes: push, sign, attest the SBOM and
       # SLSA provenance by digest, and check the runtime image. Postgres
       # keeps a shell: the entrypoint is bash (initdb on an empty volume)

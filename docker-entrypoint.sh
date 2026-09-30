@@ -86,5 +86,12 @@ if [ ! -s "$PGDATA/PG_VERSION" ]; then
 	unset PGUSER PGPASSWORD
 fi
 
+# Postgres refuses a data directory with group write, and a volume mounted
+# with an fsGroup (prod's local-path volume, fsGroup 70) gets group
+# rwx+setgid from the kubelet at every mount. The upstream entrypoint resets
+# the mode at each start, and so does this one: the server owns PGDATA. On
+# 2026-09-30 the first 16.15 start in prod crash-looped on exactly this.
+chmod 0700 "$PGDATA" || :
+
 echo "ENTRYPOINT: Starting database..."
 exec postgres "$@"
