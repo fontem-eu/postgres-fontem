@@ -87,6 +87,21 @@ kubectl exec -n <ns> deploy/postgresql -c postgres -- psql -U postgres -d gmr_ap
     "SELECT version(), (SELECT extversion FROM pg_extension WHERE extname='vector')"
 ```
 
+## fsGroup volumes (2026-09-30)
+
+A pod with an `fsGroup` on a volume the kubelet manages ownership for
+(prod's local-path volume, `fsGroup: 70`) gets group rwx and setgid on
+PGDATA at every mount. Postgres refuses to start on a data directory with
+group write. The upstream image reset the mode as root at each start. The
+first 16.15 image, running as uid 70, did not, and prod crash-looped for
+16 minutes until it was rolled back. The NFS-backed environments ignore
+`fsGroup`, which is why they passed.
+
+The entrypoint now runs `chmod 0700 "$PGDATA"` before starting; the server
+owns the directory. `test/smoke.sh`, which runs in CI before the push,
+restarts a cluster on fsGroup-style permissions and fails without that
+line.
+
 ## Rollback
 
 Pin the previous image again. Across minor versions of 16 the data
