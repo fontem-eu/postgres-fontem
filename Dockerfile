@@ -32,7 +32,7 @@ RUN apk add --no-cache build-base postgresql16-dev \
  && make PG_CONFIG="$PG_CONFIG" with_llvm=no install DESTDIR=/pgvector \
  && mkdir -p /pgdata-root
 
-FROM dhi.void42.internal/postgres:16-alpine3.23@sha256:a71ae678da29dde1533754e593dd3f07b43a263bc8619f76c23fef919d50fac4
+FROM dhi.void42.internal/postgres:16-alpine3.23@sha256:42bf7624f80aebe30c10d6f0d58493a3ac167b5642a025debd7fe63878abdb1f
 COPY --from=build /pgvector/usr/lib/postgresql16/ /usr/lib/postgresql16/
 COPY --from=build /pgvector/usr/share/postgresql16/extension/ /usr/share/postgresql16/extension/
 # Every Deployment mounts its volume at /var/lib/postgresql/data and puts
