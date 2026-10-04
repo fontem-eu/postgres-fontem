@@ -14,7 +14,7 @@
 # Versioning: tag is `<pg-version>-pgv<vector-version>`, e.g. 16.15-pgv0.8.1.
 # The base is pinned by digest (Renovate tracks it); pgvector by version and
 # checksum.
-FROM dhi.void42.internal/postgres:16-alpine3.23-dev@sha256:688806a5439c84e4b05f3b3b1af1184771abfd96ce213a985557bd7946ff6452 AS build
+FROM dhi.void42.internal/postgres:16-alpine3.23-dev@sha256:c74ef4945710d0e1fd994c7579248d16679cb7401c06cec877ca37a5182c70f1 AS build
 ARG PGVECTOR_VERSION=0.8.1
 ARG PGVECTOR_SHA256=a9094dfb85ccdde3cbb295f1086d4c71a20db1d26bf1d6c39f07a7d164033eb4
 # /usr/bin/pg_config belongs to libpq and answers for PostgreSQL 18; the
