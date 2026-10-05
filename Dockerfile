@@ -30,11 +30,17 @@ RUN apk add --no-cache build-base postgresql16-dev \
  && cd "pgvector-${PGVECTOR_VERSION}" \
  && make PG_CONFIG="$PG_CONFIG" OPTFLAGS="" with_llvm=no \
  && make PG_CONFIG="$PG_CONFIG" with_llvm=no install DESTDIR=/pgvector \
- && mkdir -p /pgdata-root
+ && mkdir -p /pgdata-root /sbom/usr/share/void42/sbom \
+ && printf '{"components": [{"name": "pgvector", "version": "%s", "purl": "pkg:github/pgvector/pgvector@v%s", "cpe": "cpe:2.3:a:pgvector_project:pgvector:%s:*:*:*:*:postgresql:*:*", "paths": ["/usr/lib/postgresql16/vector.so"]}]}\n' \
+      "$PGVECTOR_VERSION" "$PGVECTOR_VERSION" "$PGVECTOR_VERSION" > /sbom/usr/share/void42/sbom/declared.json
 
 FROM dhi.void42.internal/postgres:16-alpine3.23@sha256:17c502265401bd4f224428d28caf6644c5693832fefb70c6939ecee5f3c55b8d
 COPY --from=build /pgvector/usr/lib/postgresql16/ /usr/lib/postgresql16/
 COPY --from=build /pgvector/usr/share/postgresql16/extension/ /usr/share/postgresql16/extension/
+# pgvector is compiled here, not installed by apk, so no package database
+# lists it: the build declares it (from PGVECTOR_VERSION) for the image's
+# SBOM, which docker-build-sign requires to cover every executable file.
+COPY --from=build /sbom/ /
 # Every Deployment mounts its volume at /var/lib/postgresql/data and puts
 # PGDATA one level below; initdb, running as uid 70, has to be able to create
 # it on an empty volume. (In the cluster fsGroup: 70 already gives it that.)
